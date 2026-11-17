@@ -17,7 +17,9 @@ const DIST = join(ROOT, 'dist')
 // them elsewhere; Firefox silently skips the check when it is unreachable.
 const UPDATE_URL = 'https://sieve.endrock.dev/updates.json'
 const GECKO_ID = 'sieve@endrock.dev'
-const MIN_FIREFOX = '128.0'
+// Firefox 140 is the first release that understands data_collection_permissions,
+// which is now mandatory for new AMO submissions. 128 was the certificate-floor.
+const MIN_FIREFOX = '140.0'
 
 // Only what an extension needs. Dev files stay out so the AMO zip is clean.
 const FILES = [
