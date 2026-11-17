@@ -1,4 +1,7 @@
-import { slugFromUrl, generateToken, buildAlias, pushLog, LOG_CAP } from './lib/alias.js'
+﻿import { slugFromUrl, generateToken, buildAlias, pushLog, LOG_CAP } from './lib/alias.js'
+
+// Chrome exposes chrome.*, Firefox exposes browser.* with promises. Prefer browser.
+const api = globalThis.browser ?? globalThis.chrome
 
 const $ = (id) => document.getElementById(id)
 
@@ -29,7 +32,7 @@ function render(entry) {
 
   provenance.hidden = false
   if (entry.usedFallback) {
-    provenance.textContent = 'no site detected — used "site"'
+    provenance.textContent = 'no site detected â€” used "site"'
     provenance.classList.add('warn')
   } else {
     provenance.textContent = `generated for ${entry.sourceHost || 'this page'}`
@@ -70,7 +73,7 @@ function showNotice(text) {
   link.textContent = 'Open options'
   link.addEventListener('click', (event) => {
     event.preventDefault()
-    chrome.runtime.openOptionsPage()
+    api.runtime.openOptionsPage()
   })
 
   notice.append(link)
@@ -84,13 +87,13 @@ function clearNotice() {
 async function generate() {
   clearNotice()
 
-  const { targetDomain } = await chrome.storage.local.get('targetDomain')
+  const { targetDomain } = await api.storage.local.get('targetDomain')
   if (!targetDomain) {
     showNotice('Set a domain first.')
     return
   }
 
-  const tabs = await chrome.tabs.query({ active: true, currentWindow: true })
+  const tabs = await api.tabs.query({ active: true, currentWindow: true })
   const url = tabs && tabs[0] ? tabs[0].url : ''
   const { slug, host, fallback } = slugFromUrl(url)
 
@@ -103,8 +106,8 @@ async function generate() {
     usedFallback: fallback,
   }
 
-  const { log } = await chrome.storage.local.get('log')
-  await chrome.storage.local.set({
+  const { log } = await api.storage.local.get('log')
+  await api.storage.local.set({
     lastAlias: entry,
     log: pushLog(log, entry, LOG_CAP),
   })
@@ -112,11 +115,11 @@ async function generate() {
   render(entry)
 
   const copied = await copyAlias()
-  setFlash(copied ? 'Copied' : 'Copy failed — select and copy manually')
+  setFlash(copied ? 'Copied' : 'Copy failed â€” select and copy manually')
 }
 
 async function init() {
-  const { lastAlias } = await chrome.storage.local.get('lastAlias')
+  const { lastAlias } = await api.storage.local.get('lastAlias')
   if (lastAlias && lastAlias.alias) render(lastAlias)
 
   generateButton.addEventListener('click', generate)
@@ -126,7 +129,7 @@ async function init() {
     setFlash(copied ? 'Copied' : 'Copy failed')
   })
 
-  optionsButton.addEventListener('click', () => chrome.runtime.openOptionsPage())
+  optionsButton.addEventListener('click', () => api.runtime.openOptionsPage())
 
   output.addEventListener('click', () => output.select())
 

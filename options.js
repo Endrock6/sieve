@@ -1,4 +1,7 @@
-import { validateDomain, toCsv, toJsonExport, LOG_CAP } from './lib/alias.js'
+﻿import { validateDomain, toCsv, toJsonExport, LOG_CAP } from './lib/alias.js'
+
+// Chrome exposes chrome.*, Firefox exposes browser.* with promises. Prefer browser.
+const api = globalThis.browser ?? globalThis.chrome
 
 const $ = (id) => document.getElementById(id)
 
@@ -30,7 +33,7 @@ function flashStatus(text, kind) {
 
 function formatDate(iso) {
   const date = new Date(iso)
-  if (Number.isNaN(date.getTime())) return iso || '—'
+  if (Number.isNaN(date.getTime())) return iso || 'â€”'
   return date.toLocaleString(undefined, {
     year: 'numeric',
     month: 'short',
@@ -62,8 +65,8 @@ function renderLog() {
     const row = document.createElement('tr')
     row.append(
       cell(entry.alias, 'mono'),
-      cell(entry.sourceHost || '—'),
-      cell(entry.targetDomain || '—'),
+      cell(entry.sourceHost || 'â€”'),
+      cell(entry.targetDomain || 'â€”'),
       cell(formatDate(entry.generatedAt)),
     )
     logBody.append(row)
@@ -96,9 +99,9 @@ form.addEventListener('submit', async (event) => {
     return
   }
 
-  await chrome.storage.local.set({ targetDomain: result.value })
+  await api.storage.local.set({ targetDomain: result.value })
   domainInput.value = result.value
-  flashStatus(`Saved — aliases will use ${result.value}`, 'ok')
+  flashStatus(`Saved â€” aliases will use ${result.value}`, 'ok')
 })
 
 exportJsonButton.addEventListener('click', () => {
@@ -114,14 +117,14 @@ clearButton.addEventListener('click', async () => {
   const ok = confirm(`Delete all ${entries.length} generated aliases? This cannot be undone.`)
   if (!ok) return
 
-  await chrome.storage.local.set({ log: [] })
+  await api.storage.local.set({ log: [] })
   entries = []
   renderLog()
   flashStatus('Log cleared', 'ok')
 })
 
 async function init() {
-  const stored = await chrome.storage.local.get(['targetDomain', 'log'])
+  const stored = await api.storage.local.get(['targetDomain', 'log'])
   if (stored.targetDomain) domainInput.value = stored.targetDomain
   entries = Array.isArray(stored.log) ? stored.log : []
   renderLog()
