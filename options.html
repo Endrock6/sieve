@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Sieve — options</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <header class="page-head">
+    <svg class="mark" viewBox="0 0 128 128" aria-hidden="true">
+      <rect x="6" y="6" width="116" height="116" rx="26" fill="currentColor" opacity="0.08"></rect>
+      <path d="M30 38 H98 L84 74 Q82 80 76 80 H52 Q46 80 44 74 Z" fill="currentColor"></path>
+      <circle cx="64" cy="96" r="6" fill="currentColor" opacity="0.55"></circle>
+      <circle cx="64" cy="112" r="3.5" fill="currentColor" opacity="0.35"></circle>
+    </svg>
+    <div>
+      <h1>Sieve</h1>
+      <p class="sub">Settings and generated aliases</p>
+    </div>
+  </header>
+
+  <section class="card">
+    <h2>Domain</h2>
+    <p class="hint">The domain your aliases route to. Every alias becomes <code>&lt;site&gt;.&lt;token&gt;@&lt;this domain&gt;</code>.</p>
+    <form id="domain-form" class="domain-row" novalidate>
+      <input id="domain" type="text" spellcheck="false" placeholder="example.com" aria-label="Alias domain">
+      <button type="submit" class="primary">Save</button>
+    </form>
+    <p id="domain-status" class="status" hidden></p>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Generated aliases</h2>
+      <div class="actions">
+        <button id="export-json" type="button" class="ghost">Export JSON</button>
+        <button id="export-csv" type="button" class="ghost">Export CSV</button>
+        <button id="clear-log" type="button" class="ghost danger">Clear all</button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table id="log-table">
+        <thead>
+          <tr>
+            <th scope="col">Alias</th>
+            <th scope="col">Site</th>
+            <th scope="col">Domain</th>
+            <th scope="col">Generated</th>
+          </tr>
+        </thead>
+        <tbody id="log-body"></tbody>
+      </table>
+      <p id="log-empty" class="empty" hidden>No aliases yet. Generate one from the toolbar.</p>
+    </div>
+    <p id="log-count" class="hint"></p>
+  </section>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>
