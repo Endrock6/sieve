@@ -12,6 +12,8 @@ import { execFileSync } from 'node:child_process'
 
 const ROOT = import.meta.dirname ?? process.cwd()
 const DIST = join(ROOT, 'dist')
+// Outside dist/ so a rebuild does not delete the signed .xpi you download from AMO.
+const RELEASE = join(ROOT, 'release')
 
 // Where the unlisted .xpi and updates.json will live. Change this if you host
 // them elsewhere; Firefox silently skips the check when it is unreachable.
@@ -101,6 +103,11 @@ const updates = {
 }
 await writeFile(join(amoDir, 'updates.json'), JSON.stringify(updates, null, 2) + '\n')
 
+// Hosting folder for Cloudflare Pages: updates.json is regenerated here each
+// build, but any signed .xpi already sitting in release/ is left alone.
+await mkdir(RELEASE, { recursive: true })
+await writeFile(join(RELEASE, 'updates.json'), JSON.stringify(updates, null, 2) + '\n')
+
 const { statSync } = await import('node:fs')
 const kb = (path) => `${(statSync(path).size / 1024).toFixed(1)} KB`
 
@@ -109,6 +116,8 @@ console.log(`Sieve ${version}`)
 console.log(`  dist/chrome   ${chromeDir}`)
 console.log(`  dist/firefox  ${firefoxDir}`)
 console.log(`  dist/amo      ${zipName}  ${kb(zipPath)}`)
+console.log(`  release/      updates.json for hosting`)
 console.log('')
 console.log('Upload the zip to addons.mozilla.org with the "unlisted" channel.')
-console.log('It will return a signed .xpi to host alongside updates.json.')
+console.log('Once signed, drop the .xpi into release/ using the name in updates.json,')
+console.log('then deploy release/ with `bun run deploy` (or wrangler pages deploy).')

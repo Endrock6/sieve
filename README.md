@@ -135,6 +135,28 @@ Two things to keep in mind:
 - The Gecko ID `sieve@endrock.dev` is the update identity. Changing it makes existing installs stop seeing updates.
 - If the URL in `UPDATE_URL` is unreachable, Firefox silently skips the update check — the extension keeps working, it just never updates.
 
+## Hosting updates (Cloudflare Pages)
+
+`bun run build` writes `release/updates.json`. Drop the signed `.xpi` from AMO into `release/` under the exact filename that `update_link` names (`sieve-firefox-1.0.0.xpi`), then publish that folder.
+
+```
+release/
+├── updates.json
+└── sieve-firefox-1.0.0.xpi
+```
+
+**Dashboard route** — Cloudflare dashboard → *Workers & Pages* → *Create* → *Pages* → *Upload assets* → project name `sieve` → drag in the contents of `release/`. Then *Custom domains* → add `sieve.endrock.dev` (automatic, since the zone is already on Cloudflare).
+
+**CLI route** — `npx wrangler login` once, then:
+
+```sh
+bun run deploy
+```
+
+Verify with `curl https://sieve.endrock.dev/updates.json` — it should return the add-on object with your version and `update_link`.
+
+Two notes: the filename in `release/` must match `update_link` byte for byte, or the update points at a 404; and `release/` is gitignored because it holds a 69 KB binary that AMO — not Git — is the source for.
+
 ## Testing
 
 ```sh
